@@ -4,12 +4,12 @@ namespace YasserElgammal\TabbyPhp\Client;
 
 use YasserElgammal\TabbyPhp\Builders\CheckoutBuilder;
 use YasserElgammal\TabbyPhp\Builders\ItemBuilder;
+use YasserElgammal\TabbyPhp\Client\Http\GuzzleHttpClient;
+use YasserElgammal\TabbyPhp\Client\Http\HttpClientInterface;
 use YasserElgammal\TabbyPhp\Resources\CheckoutResource;
 use YasserElgammal\TabbyPhp\Resources\PaymentResource;
 use YasserElgammal\TabbyPhp\Resources\WebhookResource;
 use YasserElgammal\TabbyPhp\Security\WebhookVerifier;
-use YasserElgammal\TabbyPhp\Client\Http\HttpClientInterface;
-use YasserElgammal\TabbyPhp\Client\Http\GuzzleHttpClient;
 
 final class TabbyClient
 {
@@ -17,7 +17,7 @@ final class TabbyClient
 
     public function __construct(
         private readonly Configuration $config,
-        ?HttpClientInterface $httpClient = null
+        ?HttpClientInterface $httpClient = null,
     ) {
         $this->apiClient = new ApiClient($config, $httpClient ?? new GuzzleHttpClient());
     }

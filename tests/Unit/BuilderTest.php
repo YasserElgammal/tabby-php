@@ -2,9 +2,9 @@
 
 namespace YasserElgammal\TabbyPhp\Tests\Unit;
 
-use YasserElgammal\TabbyPhp\Exceptions\ValidationException;
-use YasserElgammal\TabbyPhp\Client\TabbyClient;
 use PHPUnit\Framework\TestCase;
+use YasserElgammal\TabbyPhp\Client\TabbyClient;
+use YasserElgammal\TabbyPhp\Exceptions\ValidationException;
 
 final class BuilderTest extends TestCase
 {

@@ -122,6 +122,8 @@ if ($response->isAvailable()) {
 
 Create a `Configuration` and pass it to `TabbyClient`. The merchant code and webhook secret are optional and only need to be supplied when your integration uses them.
 
+Configuration is validated immediately: credentials and the base URL must be valid, timeouts must be positive, and retry values cannot be negative.
+
 ```php
 use YasserElgammal\TabbyPhp\Client\Configuration;
 use YasserElgammal\TabbyPhp\Client\TabbyClient;
@@ -177,11 +179,11 @@ All SDK operations must be executed from your backend. Store credentials in envi
 
 ### WebhookResource
 
-- `create(string $url, bool $test = true, array $headers = [])`
+- `create(string $url, array $headers = [])`
 - `all()`
 - `get(string $id)`
 - `getResponse(string $id)`
-- `update(string $id, string $url, bool $test = true)`
+- `update(string $id, string $url)`
 - `delete(string $id)`
 
 ### WebhookVerifier
@@ -331,6 +333,8 @@ Capture, refund, and other mutation operations should use unique reference IDs.
 
 Do not automatically retry mutation requests unless the same idempotent reference is reused. Reusing the same reference preserves the identity of the original operation and helps prevent accidental duplicate mutations.
 
+GET requests retry failures reported as `TransportException` and HTTP `408`, `425`, `429`, and `5xx` responses. Exponential backoff with jitter waits at most two seconds per retry. A valid `Retry-After` takes precedence. If it requests more than two seconds, the SDK raises the API error immediately so the caller can decide when to retry.
+
 ## Webhooks
 
 Configure `webhookSecret` when constructing the client if you want to verify the secret received with webhook requests.
@@ -345,6 +349,20 @@ $webhook = $tabby->webhooks()->create(
     'https://shop.example/webhooks/tabby',
     headers: ['title' => 'X-Webhook-Token', 'value' => 'expected-value'],
 );
+```
+
+Webhook registration no longer sends the deprecated `is_test` field. Select the intended environment with the corresponding Tabby secret key.
+
+When upgrading from 1.x, remove the boolean argument (including named `test:` arguments) from webhook calls:
+
+```php
+// 1.x
+$webhooks->create($url, true, $headers);
+$webhooks->update($id, $url, true);
+
+// 2.x
+$webhooks->create($url, headers: $headers);
+$webhooks->update($id, $url);
 ```
 
 ### List and retrieve webhooks
@@ -431,7 +449,7 @@ try {
 
 ## Testing
 
-The SDK includes a PHPUnit test suite. Inject a mock of `HttpClientInterface` to test your integration without calling the real API.
+The SDK includes PHPUnit tests, PHPStan level 8 analysis, and PHP CS Fixer checks. Run the full local verification suite with `composer verify`. Inject a mock of `HttpClientInterface` to test your integration without calling the real API.
 
 ```php
 use YasserElgammal\TabbyPhp\Client\Configuration;

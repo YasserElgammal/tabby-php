@@ -30,12 +30,14 @@ final class PaymentResource
         return PaymentResponse::fromArray($this->get($paymentId));
     }
 
+    /** @return array<string, mixed> */
     public function update(string $paymentId, string|PaymentUpdateData $referenceId): array
     {
         $data = $referenceId instanceof PaymentUpdateData ? $referenceId : new PaymentUpdateData($referenceId);
         return $this->client->put('/api/v2/payments/' . ValidatesInput::id($paymentId, 'payment ID'), $data->toArray());
     }
 
+    /** @return array<string, mixed> */
     public function all(?PaymentListFilters $filters = null): array
     {
         return $this->client->get('/api/v2/payments', ($filters ?? new PaymentListFilters())->toArray());
@@ -72,7 +74,7 @@ final class PaymentResource
             'amount' => $amount,
             'reference_id' => $referenceId,
             'reason' => $reason,
-        ], fn ($value) => $value !== null));
+        ], fn($value) => $value !== null));
     }
 
     /** @return array<string, mixed> */

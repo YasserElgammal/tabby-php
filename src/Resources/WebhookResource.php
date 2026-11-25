@@ -15,7 +15,7 @@ final class WebhookResource
      * @param array<string, string> $headers
      * @return array<string, mixed>
      */
-    public function create(string $url, bool $test = true, array $headers = []): array
+    public function create(string $url, array $headers = []): array
     {
         $payload = ['url' => ValidatesInput::url($url, 'webhook URL')];
         if ($headers !== []) {
@@ -46,10 +46,10 @@ final class WebhookResource
     }
 
     /** @return array<string, mixed> */
-    public function update(string $id, string $url, bool $test = true): array
+    public function update(string $id, string $url): array
     {
         return $this->client->put('/api/v1/webhooks/' . ValidatesInput::id($id, 'webhook ID'), [
-            'url' => ValidatesInput::url($url, 'webhook URL')
+            'url' => ValidatesInput::url($url, 'webhook URL'),
         ], true);
     }
 

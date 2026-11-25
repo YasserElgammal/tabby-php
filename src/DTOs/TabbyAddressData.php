@@ -15,7 +15,7 @@ final readonly class TabbyAddressData
         return array_filter([
             'city' => $this->city,
             'address' => $this->address,
-            'zip' => $this->zip
+            'zip' => $this->zip,
         ], fn($v) => $v !== null);
     }
 }

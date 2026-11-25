@@ -93,4 +93,28 @@ final class DtoValidationTest extends TestCase
 
         (new TabbyAddressData('', 'Street 1'))->toArray();
     }
+
+    #[DataProvider('invalidItemProvider')]
+    public function test_item_dto_rejects_invalid_invariants(array $arguments): void
+    {
+        $this->expectException(ValidationException::class);
+
+        new TabbyItemData(...$arguments);
+    }
+
+    public static function invalidItemProvider(): array
+    {
+        return [
+            'empty title' => [['', 1, '10.00', 'sku-1']],
+            'zero quantity' => [['Product', 0, '10.00', 'sku-1']],
+            'invalid reference' => [['Product', 1, '10.00', 'invalid reference']],
+            'invalid image URL' => [[
+                'title' => 'Product',
+                'quantity' => 1,
+                'unitPrice' => '10.00',
+                'referenceId' => 'sku-1',
+                'imageUrl' => 'not-a-url',
+            ]],
+        ];
+    }
 }

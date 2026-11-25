@@ -35,6 +35,7 @@ final class WebhookResourceTest extends TestCase
 
         self::assertSame('webhook-1', $response->id);
         self::assertSame('https://shop.test/tabby', $response->url);
+        self::assertArrayNotHasKey('is_test', $http->requests[0]['options']['json']);
         self::assertSame(
             ['title' => 'X-Token', 'value' => 'value'],
             $http->requests[0]['options']['json']['header'],

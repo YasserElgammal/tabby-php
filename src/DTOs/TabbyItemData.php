@@ -2,6 +2,9 @@
 
 namespace YasserElgammal\TabbyPhp\DTOs;
 
+use YasserElgammal\TabbyPhp\Exceptions\ValidationException;
+use YasserElgammal\TabbyPhp\Support\ValidatesInput;
+
 final readonly class TabbyItemData
 {
     public function __construct(
@@ -21,8 +24,22 @@ final readonly class TabbyItemData
         public ?string $sizeType = null,
         public ?string $size = null,
         public ?string $brand = null,
-    ) {}
-    
+    ) {
+        if (trim($title) === '') {
+            throw new ValidationException('The item title must not be empty.');
+        }
+        if ($quantity <= 0) {
+            throw new ValidationException('The item quantity must be greater than zero.');
+        }
+        ValidatesInput::id($referenceId, 'item reference ID');
+        if ($imageUrl !== null) {
+            ValidatesInput::url($imageUrl, 'item image URL');
+        }
+        if ($productUrl !== null) {
+            ValidatesInput::url($productUrl, 'item product URL');
+        }
+    }
+
     /** @return array<string,mixed> */
     public function toArray(): array
     {
@@ -43,6 +60,6 @@ final readonly class TabbyItemData
             'size_type' => $this->sizeType,
             'size' => $this->size,
             'brand' => $this->brand,
-        ], fn ($value) => $value !== null);
+        ], fn($value) => $value !== null);
     }
 }
