@@ -17,15 +17,21 @@ final class CheckoutBuilder
     private string $language = 'en';
     private ?TabbyBuyerData $buyer = null;
     private ?TabbyAddressData $address = null;
+    /** @var list<TabbyItemData> */
     private array $items = [];
+    /** @var array<string, string> */
     private array $urls = [];
+    /** @var array<string, mixed> */
     private array $buyerHistory = [];
+    /** @var list<array<string, mixed>> */
     private array $orderHistory = [];
     private ?string $merchantCode = null;
     private ?string $token = null;
     private ?string $updatedAt = null;
     private ?string $description = null;
+    /** @var array<string, mixed> */
     private array $meta = [];
+    /** @var array{body: string, content_type: string}|null */
     private ?array $attachment = null;
 
     public function amount(string|int|float $v): self
@@ -39,7 +45,7 @@ final class CheckoutBuilder
         $this->currency = $v;
         return $this;
     }
-    
+
     public function referenceId(string $v): self
     {
         $this->referenceId = $v;
@@ -70,9 +76,12 @@ final class CheckoutBuilder
         return $this;
     }
 
+    /** @param iterable<TabbyItemData> $v */
     public function items(iterable $v): self
     {
-        foreach ($v as $i) $this->item($i);
+        foreach ($v as $i) {
+            $this->item($i);
+        }
         return $this;
     }
 
@@ -106,12 +115,14 @@ final class CheckoutBuilder
         return $this;
     }
 
+    /** @param array<string, mixed> $v */
     public function buyerHistory(array $v): self
     {
         $this->buyerHistory = $v;
         return $this;
     }
 
+    /** @param list<array<string, mixed>> $v */
     public function orderHistory(array $v): self
     {
         $this->orderHistory = $v;
@@ -135,6 +146,7 @@ final class CheckoutBuilder
         $this->description = $v;
         return $this;
     }
+    /** @param array<string, mixed> $v */
     public function meta(array $v): self
     {
         $this->meta = $v;
@@ -150,10 +162,22 @@ final class CheckoutBuilder
     {
         \YasserElgammal\TabbyPhp\Support\Decimal::positive($this->amount);
         \YasserElgammal\TabbyPhp\Support\ValidatesInput::id($this->referenceId, 'order reference ID');
-        if (! $this->buyer || ! $this->address || $this->items === [] || count($this->urls) !== 3) throw new ValidationException('Tabby checkout requires buyer, address, items, and merchant URLs.');
-        foreach ($this->urls as $name => $url) \YasserElgammal\TabbyPhp\Support\ValidatesInput::url($url, "merchant {$name} URL");
-        if ($this->updatedAt !== null) \YasserElgammal\TabbyPhp\Support\ValidatesInput::dateTime($this->updatedAt, 'order updated at');
+        if (! $this->buyer || ! $this->address || $this->items === []
+            || ! isset($this->urls['success'], $this->urls['cancel'], $this->urls['failure'])) {
+            throw new ValidationException('Tabby checkout requires buyer, address, items, and merchant URLs.');
+        }
+        foreach ($this->urls as $name => $url) {
+            \YasserElgammal\TabbyPhp\Support\ValidatesInput::url($url, "merchant {$name} URL");
+        }
+        if ($this->updatedAt !== null) {
+            \YasserElgammal\TabbyPhp\Support\ValidatesInput::dateTime($this->updatedAt, 'order updated at');
+        }
         $order = new TabbyOrderData($this->referenceId, $this->tax, $this->shipping, $this->discount, $this->updatedAt ?? date(DATE_ATOM), $this->items);
-        return new TabbyCheckoutData($this->amount, $this->currency, $this->buyer, $this->address, $order, $this->urls, $this->language, $this->buyerHistory, $this->orderHistory, $this->merchantCode, $this->token, $this->description, $this->meta, $this->attachment);
+        $merchantUrls = [
+            'success' => $this->urls['success'],
+            'cancel' => $this->urls['cancel'],
+            'failure' => $this->urls['failure'],
+        ];
+        return new TabbyCheckoutData($this->amount, $this->currency, $this->buyer, $this->address, $order, $merchantUrls, $this->language, $this->buyerHistory, $this->orderHistory, $this->merchantCode, $this->token, $this->description, $this->meta, $this->attachment);
     }
 }

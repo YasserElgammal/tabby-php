@@ -4,6 +4,7 @@ namespace YasserElgammal\TabbyPhp\DTOs;
 
 final readonly class PaymentResponse
 {
+    /** @param array<string, mixed> $raw */
     public function __construct(
         public ?string $id,
         public ?string $status,
@@ -11,6 +12,7 @@ final readonly class PaymentResponse
         public array $raw,
     ) {}
 
+    /** @param array<string, mixed> $data */
     public static function fromArray(array $data): self
     {
         return new self(

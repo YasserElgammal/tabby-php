@@ -8,6 +8,8 @@
         "guzzlehttp/guzzle": "^7.0"
     },
     "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.0",
+        "phpstan/phpstan": "^2.0",
         "phpunit/phpunit": "^10.0|^11.0"
     },
     "autoload": {
@@ -22,6 +24,16 @@
     },
     "config": {
         "sort-packages": true
+    },
+    "scripts": {
+        "analyse": "phpstan analyse --no-progress",
+        "cs-check": "php-cs-fixer check --diff",
+        "test": "phpunit",
+        "verify": [
+            "@cs-check",
+            "@analyse",
+            "@test"
+        ]
     },
     "minimum-stability": "stable",
     "prefer-stable": true

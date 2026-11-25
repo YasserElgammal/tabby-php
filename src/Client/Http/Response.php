@@ -22,7 +22,9 @@ final readonly class Response
             return null;
         }
 
-        return json_decode($this->body, true, 512, JSON_THROW_ON_ERROR);
+        $decoded = json_decode($this->body, true, 512, JSON_THROW_ON_ERROR);
+
+        return is_array($decoded) ? $decoded : null;
     }
 
     public function successful(): bool

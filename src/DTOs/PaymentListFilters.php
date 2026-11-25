@@ -29,6 +29,7 @@ final readonly class PaymentListFilters
         }
     }
 
+    /** @return array<string, int|string> */
     public function toArray(): array
     {
         return array_filter([
@@ -36,6 +37,6 @@ final readonly class PaymentListFilters
             'created_at__lte' => $this->createdAtLte,
             'limit' => $this->limit,
             'offset' => $this->offset,
-        ], fn ($value) => $value !== null);
+        ], fn($value) => $value !== null);
     }
 }

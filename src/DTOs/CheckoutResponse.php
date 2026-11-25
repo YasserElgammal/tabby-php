@@ -2,7 +2,6 @@
 
 namespace YasserElgammal\TabbyPhp\DTOs;
 
-
 final readonly class CheckoutResponse
 {
     /** @param array<string,mixed> $raw */

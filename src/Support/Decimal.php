@@ -9,26 +9,30 @@ final class Decimal
     /** @param list<string|int|float> $subtrahends */
     public static function subtract(string|int|float $value, array $subtrahends, string $field = 'amount'): string
     {
-        $values = array_map(fn ($item) => self::nonNegative($item, $field), [$value, ...$subtrahends]);
-        $scale = max(array_map(fn (string $item) => strlen(explode('.', $item, 2)[1] ?? ''), $values));
+        $values = array_map(fn($item) => self::nonNegative($item, $field), [$value, ...$subtrahends]);
+        $scale = max(array_map(fn(string $item) => strlen(explode('.', $item, 2)[1] ?? ''), $values));
         $scale = max(2, $scale);
-        $factor = 10 ** $scale;
         $units = self::units(array_shift($values), $scale);
         foreach ($values as $item) {
-            $units -= self::units($item, $scale);
+            $subtrahend = self::units($item, $scale);
+            if (self::compare($units, $subtrahend) <= 0) {
+                throw new ValidationException("The {$field} must be greater than zero.");
+            }
+            $units = self::subtractUnits($units, $subtrahend);
         }
-        if ($units <= 0) {
+        if ($units === '0') {
             throw new ValidationException("The {$field} must be greater than zero.");
         }
 
-        return number_format($units / $factor, $scale, '.', '');
+        $units = str_pad($units, $scale + 1, '0', STR_PAD_LEFT);
+        return substr($units, 0, -$scale) . '.' . substr($units, -$scale);
     }
 
     public static function positive(string|int|float $value, string $field = 'amount'): string
     {
         $decimal = self::normalize($value, $field);
 
-        if ((float) $decimal <= 0) {
+        if (preg_match('/^0\.0+$/', $decimal) === 1) {
             throw new ValidationException("The {$field} must be greater than zero.");
         }
 
@@ -38,10 +42,6 @@ final class Decimal
     public static function nonNegative(string|int|float $value, string $field): string
     {
         $decimal = self::normalize($value, $field);
-
-        if ((float) $decimal < 0) {
-            throw new ValidationException("The {$field} must not be negative.");
-        }
 
         return $decimal;
     }
@@ -57,12 +57,39 @@ final class Decimal
         [$whole, $fraction] = array_pad(explode('.', $raw, 2), 2, '');
         $whole = ltrim($whole, '0');
 
-        return ($whole === '' ? '0' : $whole).'.'.str_pad($fraction, 2, '0');
+        return ($whole === '' ? '0' : $whole) . '.' . str_pad($fraction, 2, '0');
     }
 
-    private static function units(string $value, int $scale): int
+    private static function units(string $value, int $scale): string
     {
         [$whole, $fraction] = array_pad(explode('.', $value, 2), 2, '');
-        return ((int) $whole * (10 ** $scale)) + (int) str_pad($fraction, $scale, '0');
+        $units = ltrim($whole . str_pad($fraction, $scale, '0'), '0');
+        return $units === '' ? '0' : $units;
+    }
+
+    private static function compare(string $left, string $right): int
+    {
+        return strlen($left) <=> strlen($right) ?: strcmp($left, $right);
+    }
+
+    private static function subtractUnits(string $left, string $right): string
+    {
+        $result = '';
+        $borrow = 0;
+        $right = str_pad($right, strlen($left), '0', STR_PAD_LEFT);
+
+        for ($i = strlen($left) - 1; $i >= 0; $i--) {
+            $digit = ((int) $left[$i]) - ((int) $right[$i]) - $borrow;
+            if ($digit < 0) {
+                $digit += 10;
+                $borrow = 1;
+            } else {
+                $borrow = 0;
+            }
+            $result = $digit . $result;
+        }
+
+        $result = ltrim($result, '0');
+        return $result === '' ? '0' : $result;
     }
 }

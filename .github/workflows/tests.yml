@@ -19,6 +19,7 @@ jobs:
           - '8.2'
           - '8.3'
           - '8.4'
+          - '8.5'
 
     steps:
       - name: Checkout repository
@@ -39,3 +40,38 @@ jobs:
 
       - name: Run tests
         run: vendor/bin/phpunit --testdox
+
+      - name: Run static analysis
+        if: matrix.php == '8.2'
+        run: vendor/bin/phpstan analyse --no-progress
+
+      - name: Check coding style
+        if: matrix.php == '8.2'
+        run: vendor/bin/php-cs-fixer check --diff
+
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          coverage: xdebug
+          tools: composer:v2
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Generate coverage report
+        run: vendor/bin/phpunit --coverage-text --coverage-clover=coverage.xml
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml

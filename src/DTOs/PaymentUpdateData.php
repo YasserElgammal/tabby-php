@@ -11,6 +11,7 @@ final readonly class PaymentUpdateData
         ValidatesInput::id($referenceId, 'order reference ID');
     }
 
+    /** @return array{order: array{reference_id: string}} */
     public function toArray(): array
     {
         return ['order' => ['reference_id' => $this->referenceId]];

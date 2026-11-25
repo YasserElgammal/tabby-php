@@ -32,7 +32,7 @@ final class CheckoutResource
             isset($data['status']) ? (string) $data['status'] : null,
             isset($data['rejection_reason_code']) ? (string) $data['rejection_reason_code'] : null,
             $data,
-            (string) $data['id']
+            (string) $data['id'],
         );
     }
 }

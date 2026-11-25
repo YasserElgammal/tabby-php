@@ -24,7 +24,7 @@ final class GuzzleHttpClient implements HttpClientInterface
             return new Response(
                 $response->getStatusCode(),
                 $response->getHeaders(),
-                (string) $response->getBody()
+                (string) $response->getBody(),
             );
         } catch (ConnectException $e) {
             throw new TransportException('Unable to connect to the Tabby API.', 0, $e);
@@ -35,7 +35,7 @@ final class GuzzleHttpClient implements HttpClientInterface
                 return new Response(
                     $response->getStatusCode(),
                     $response->getHeaders(),
-                    (string) $response->getBody()
+                    (string) $response->getBody(),
                 );
             }
 

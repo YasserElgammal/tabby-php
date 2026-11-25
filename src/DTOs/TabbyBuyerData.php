@@ -20,6 +20,6 @@ final readonly class TabbyBuyerData
             'email' => $this->email,
             'name' => $this->name,
             'dob' => $this->dob,
-        ], fn ($value) => $value !== null);
+        ], fn($value) => $value !== null);
     }
 }

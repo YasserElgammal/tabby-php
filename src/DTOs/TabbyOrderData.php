@@ -11,7 +11,7 @@ final readonly class TabbyOrderData
         public string|int|float $shippingAmount,
         public string|int|float $discountAmount,
         public string $updatedAt,
-        public array $items
+        public array $items,
     ) {}
     /** @return array<string,mixed> */ public function toArray(): array
     {
@@ -21,7 +21,7 @@ final readonly class TabbyOrderData
             'shipping_amount' => \YasserElgammal\TabbyPhp\Support\Decimal::nonNegative($this->shippingAmount, 'shipping amount'),
             'discount_amount' => \YasserElgammal\TabbyPhp\Support\Decimal::nonNegative($this->discountAmount, 'discount amount'),
             'updated_at' => $this->updatedAt,
-            'items' => array_map(fn(TabbyItemData $i) => $i->toArray(), $this->items)
+            'items' => array_map(fn(TabbyItemData $i) => $i->toArray(), $this->items),
         ];
     }
 }
